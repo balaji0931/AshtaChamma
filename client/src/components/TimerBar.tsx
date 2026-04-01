@@ -57,18 +57,12 @@ export function TimerBar({ timer, isMyTurn }: TimerBarProps) {
           />
         </div>
         <span
-          className={`text-xs font-bold tabular-nums min-w-[2ch] text-right ${
-            isUrgent ? 'text-red-500 animate-pulse' : 'text-stone-500'
-          }`}
+          className={`text-xs font-bold tabular-nums min-w-[2ch] text-right ${isUrgent ? 'text-red-500 animate-pulse' : 'text-stone-500'
+            }`}
         >
           {seconds}s
         </span>
       </div>
-      {isMyTurn && (
-        <p className={`text-[10px] text-center mt-0.5 font-medium ${isUrgent ? 'text-red-500' : 'text-stone-400'}`}>
-          {timer.type === 'roll' ? 'Tap to roll!' : 'Choose a move!'}
-        </p>
-      )}
     </div>
   );
 }

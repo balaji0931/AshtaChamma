@@ -204,8 +204,8 @@ export function GameProvider({ config, playerNames, children }: GameProviderProp
     const FORWARD_STEP_MS = 250; // Slower forward movement
     const KILL_STEP_MS = 50;     // Fast reverse animation for kills
 
-    // If no animation needed (single step, non-entry), just execute
-    if (forwardCells.length <= 1 && !killedPawn && !move.isEntry) {
+    // If no steps, no kill, and not an entry, just execute
+    if (forwardCells.length === 0 && !killedPawn && !move.isEntry) {
       if (toIndex === HOME_INDEX) playHomeSound();
       else playMoveSound();
       engine.selectMove(move);
@@ -233,7 +233,12 @@ export function GameProvider({ config, playerNames, children }: GameProviderProp
 
     const forwardInterval = setInterval(() => {
       step++;
-      playMoveSound(); // tap sound per step
+      // Skip movement tap for first cell of an entry (playEntrySound covers it)
+      const isFirstEntryStep = move.isEntry && step === 1;
+      if (!isFirstEntryStep) {
+        playMoveSound();
+      }
+
       if (step >= forwardCells.length) {
         clearInterval(forwardInterval);
         if (toIndex === HOME_INDEX) playHomeSound();
@@ -293,16 +298,18 @@ export function GameProvider({ config, playerNames, children }: GameProviderProp
     }, FORWARD_STEP_MS);
   }, [engine, gameState, isAnimating, autoEnterSecondPawn]);
 
+  const [isRolling, setIsRolling] = useState(false);
+
   // Auto-move: if there's exactly 1 valid move, execute it automatically after a short delay.
   useEffect(() => {
-    if (isAnimating) return;
+    if (isAnimating || isRolling) return;
     if (gameState.phase !== GamePhase.WAITING_FOR_MOVE) return;
     if (gameState.validMoves.length === 0) return;
 
     const moves = gameState.validMoves;
     
     if (moves.length === 1) {
-      const timer = setTimeout(() => selectMove(moves[0]), 1000);
+      const timer = setTimeout(() => selectMove(moves[0]), 3000);
       return () => clearTimeout(timer);
     }
 
@@ -310,10 +317,10 @@ export function GameProvider({ config, playerNames, children }: GameProviderProp
       m => m.pawnId === moves[0].pawnId && m.targetPathIndex === moves[0].targetPathIndex
     );
     if (allSamePawnAndTarget && moves.length > 0) {
-      const timer = setTimeout(() => selectMove(moves[0]), 1000);
+      const timer = setTimeout(() => selectMove(moves[0]), 3000);
       return () => clearTimeout(timer);
     }
-  }, [gameState.phase, gameState.validMoves, isAnimating, selectMove]);
+  }, [gameState.phase, gameState.validMoves, isAnimating, isRolling, selectMove]);
 
   const value = {
     state: gameState,
@@ -322,6 +329,9 @@ export function GameProvider({ config, playerNames, children }: GameProviderProp
     animatingPawn,
     killedAnimatingPawn,
     isAnimating,
+    isRolling,
+    setIsRolling,
+    perspectiveRotation: 0,
     myPosition: gameState.currentTurn,
     isMyTurn: true,
   };

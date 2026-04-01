@@ -99,7 +99,7 @@ export function createDefaultConfig(
     innerPathMode: 'ROTATION' as GameConfig['innerPathMode'],
     activePositions: DEFAULT_POSITIONS[playerCount],
     diceConfig: {
-      baseWeights: { 1: 20, 2: 20, 3: 20, 4: 25, 8: 15 },
+      baseWeights: { 1: 26, 2: 34, 3: 26, 4: 7, 8: 7 },
       maxBoostPerNumber: 15,
       maxTotalAdjustment: 25,
     },
@@ -265,7 +265,7 @@ export class GameEngine {
     this.cancelSkipTimeout();
     this.skipTimeout = setTimeout(() => {
       this.finalizeSkip();
-    }, 1500);
+    }, 3000);
   }
 
   /**

@@ -282,8 +282,8 @@ export function LocalGame({ onExit }: LocalGameProps) {
       )}
 
       {/* Exit */}
-      <button 
-        className="absolute top-2 right-3 z-10 text-stone-300 hover:text-stone-500 active:scale-90 transition-all p-2" 
+      <button
+        className="absolute top-2 right-3 z-10 text-stone-300 hover:text-stone-500 active:scale-90 transition-all p-2"
         onClick={() => isGameOver ? onExit() : setShowLeaveConfirm(true)}
       >
         <X size={20} />
@@ -313,12 +313,12 @@ export function LocalGame({ onExit }: LocalGameProps) {
 
       {/* ============ DESKTOP (>= md) ============ */}
       <div className="hidden md:flex items-center justify-center w-full h-full">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           <div className="flex items-center shrink-0" style={{ minWidth: hasB ? undefined : 0 }}>
             {hasB && <PlayerDice position={PlayerPosition.B} diceOnLeft />}
           </div>
 
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-6">
             <div className="h-12 flex items-center justify-center">
               {hasA && <PlayerDice position={PlayerPosition.A} />}
             </div>

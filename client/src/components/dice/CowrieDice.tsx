@@ -11,8 +11,8 @@ const COWRIE_OPEN = '/assets/dice/cowrie_open.png';
 const COWRIE_CLOSED = '/assets/dice/cowrie_closed.png';
 
 export function CowrieDice({ position }: { position: PlayerPosition }) {
-  const { state, roll, isAnimating, isMyTurn } = useGame();
-  const [isRolling, setIsRolling] = useState(false);
+  const { state, roll, isAnimating, isMyTurn, setIsRolling } = useGame();
+  const [localIsRolling, setLocalIsRolling] = useState(false);
   const [shellAngles, setShellAngles] = useState([0, 0, 0, 0]);
   const [shellYAngles, setShellYAngles] = useState([0, 0, 0, 0]);
   const rollCountRef = useRef(0);
@@ -20,7 +20,7 @@ export function CowrieDice({ position }: { position: PlayerPosition }) {
   const pendingSeedsRef = useRef<boolean[] | null>(null);
 
   const isTurn = state.currentTurn === position;
-  const canRoll = isMyTurn && isTurn && state.phase === 'WAITING_FOR_ROLL' && !isRolling && !isAnimating;
+  const canRoll = isMyTurn && isTurn && state.phase === 'WAITING_FOR_ROLL' && !localIsRolling && !isAnimating;
 
   // ─── Sync Animation with State ───
   useEffect(() => {
@@ -31,15 +31,16 @@ export function CowrieDice({ position }: { position: PlayerPosition }) {
     if (lastRollIdRef.current === currentRollId) return;
     lastRollIdRef.current = currentRollId;
 
-    if (isRolling) {
+    if (localIsRolling) {
       pendingSeedsRef.current = result.seeds;
     } else if (state.phase === 'WAITING_FOR_MOVE') {
       animateLocally(result.seeds);
     }
-  }, [state.lastDiceResult, state.turnNumber, isRolling]);
+  }, [state.lastDiceResult, state.turnNumber, localIsRolling]);
 
   const animateLocally = (seeds: boolean[]) => {
     setIsRolling(true);
+    setLocalIsRolling(true);
     playRollSound();
 
     let frame = 0;
@@ -58,7 +59,8 @@ export function CowrieDice({ position }: { position: PlayerPosition }) {
         clearInterval(interval);
         setShellAngles(seeds.map((isOpen) => (isOpen ? 0 : 180)));
         setShellYAngles([0, 0, 0, 0]);
-        setIsRolling(false);
+        setLocalIsRolling(false);
+        setTimeout(() => setIsRolling(false), 200);
       }
     }, 90);
   };
@@ -68,6 +70,7 @@ export function CowrieDice({ position }: { position: PlayerPosition }) {
 
     pendingSeedsRef.current = null;
     setIsRolling(true);
+    setLocalIsRolling(true);
     playRollSound();
 
     const immediateResult = roll();
@@ -96,14 +99,16 @@ export function CowrieDice({ position }: { position: PlayerPosition }) {
           if (finalSeeds) {
             setShellAngles(finalSeeds.map((isOpen) => (isOpen ? 0 : 180)));
             setShellYAngles([0, 0, 0, 0]);
-            setIsRolling(false);
+            setLocalIsRolling(false);
+            setTimeout(() => setIsRolling(false), 200);
           } else {
+            setLocalIsRolling(false);
             setIsRolling(false);
           }
         }
       }
     }, 90);
-  }, [canRoll, roll, state.lastDiceResult]);
+  }, [canRoll, roll, state.lastDiceResult, setIsRolling]);
 
   return (
     <div
@@ -126,7 +131,7 @@ export function CowrieDice({ position }: { position: PlayerPosition }) {
             height: '18px',
             transformStyle: 'preserve-3d',
             transform: `rotateX(${shellAngles[i]}deg) rotateY(${shellYAngles[i]}deg)`,
-            transition: isRolling
+            transition: localIsRolling
               ? 'transform 0.06s linear'
               : 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
           }}

@@ -44,37 +44,37 @@ export function computeFairnessWeights(
 
   // Entry boost: only a small nudge when player has few pawns on board
   if (context.activePawnCount < 2) {
-    weights[4] += 3;
-    weights[8] += 2;
+    weights[4] += 1;
+    weights[8] += 0.5;
     reasons.push('ENTRY_BOOST');
   }
 
   // Reduce spawn values slightly when player already has many pawns
   if (context.activePawnCount >= 3) {
-    weights[4] -= 2;
-    weights[8] -= 1;
+    weights[4] -= 1;
+    weights[8] -= 0.5;
     reasons.push('SPAWN_LIMIT');
   }
 
   // Kill opportunity: slight boost toward the exact number needed
   if (context.canKill) {
     for (const killNum of context.killNumbers) {
-      weights[killNum] += 3;
+      weights[killNum] += 2;
     }
     reasons.push('KILL_OPPORTUNITY');
   }
 
   // Anti-frustration: gentle boost after 3+ bad rolls (not dramatic)
   if (player.badRollStreak >= 3) {
-    weights[4] += 4;
-    weights[8] += 2;
+    weights[4] += 2;
+    weights[8] += 1;
     reasons.push('ANTI_FRUSTRATION');
   }
 
   // Comeback: tiny nudge for players behind
   if (context.isBehind) {
-    weights[4] += 2;
-    weights[8] += 1;
+    weights[4] += 1;
+    weights[8] += 0.5;
     reasons.push('COMEBACK_BOOST');
   }
 

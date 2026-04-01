@@ -10,6 +10,7 @@ import {
   useState,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   type ReactNode,
 } from 'react';
@@ -152,6 +153,12 @@ export function OnlineGameProvider({ initialState, myPosition, children }: Onlin
   const prevStateRef = useRef<GameState>(gameState);
   const isAnimatingRef = useRef(false);
   const pendingStateRef = useRef<GameState | null>(null);
+  const gameStateRef = useRef<GameState>(gameState);
+
+  // Keep gameStateRef in sync for use in socket listeners (avoids stale closures)
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
 
   useEffect(() => {
     if (!socket) return;
@@ -178,12 +185,22 @@ export function OnlineGameProvider({ initialState, myPosition, children }: Onlin
     });
     socket.on('timer:sync', onTimerSync);
 
+    const onMoveExecuted = (data: { move: MoveAction; position: PlayerPosition }) => {
+      // Only animate if it's NOT our move (we animate ours immediately for responsiveness)
+      if (data.position !== myPosition) {
+        runMovementAnimation(data.move);
+      }
+    };
+
+    socket.on('game:move-executed', onMoveExecuted);
+
     return () => {
       socket.off('game:state-update', onStateUpdate);
       socket.off('game:started');
       socket.off('timer:sync', onTimerSync);
+      socket.off('game:move-executed', onMoveExecuted);
     };
-  }, [socket]);
+  }, [socket, myPosition]);
 
   const finishAnimation = useCallback(() => {
     setAnimatingPawn(null);
@@ -198,17 +215,13 @@ export function OnlineGameProvider({ initialState, myPosition, children }: Onlin
     }
   }, []);
 
-  const selectMove = useCallback((move: MoveAction) => {
-    if (isAnimating || !socket) return;
-    const moveIndex = gameState.validMoves.findIndex(
-      (m) => m.pawnId === move.pawnId && m.targetPathIndex === move.targetPathIndex,
-    );
-    if (moveIndex === -1) return;
-
-    socket.emit('game:select-move', { moveIndex });
-
+  const runMovementAnimation = useCallback((move: MoveAction) => {
     let movingPawn: Pawn | undefined;
-    for (const player of gameState.players.values()) {
+    // IMPORTANT: Animation must start from where the pawn is CURRENTLY visible
+    // Use Ref to avoid stale closure in the socket listener
+    const currentState = gameStateRef.current;
+
+    for (const player of currentState.players.values()) {
       movingPawn = player.pawns.find((p) => p.id === move.pawnId);
       if (movingPawn) break;
     }
@@ -221,7 +234,7 @@ export function OnlineGameProvider({ initialState, myPosition, children }: Onlin
 
     let killedPawn: Pawn | undefined;
     if (move.willKill && move.killTargets.length > 0) {
-      for (const player of gameState.players.values()) {
+      for (const player of currentState.players.values()) {
         for (const p of player.pawns) {
           if (move.killTargets.includes(p.id)) {
             killedPawn = p;
@@ -235,7 +248,8 @@ export function OnlineGameProvider({ initialState, myPosition, children }: Onlin
     const FORWARD_STEP_MS = 250;
     const KILL_STEP_MS = 50;
 
-    if (forwardCells.length <= 1 && !killedPawn && !move.isEntry) {
+    // Even for single step, we want to see the animation/sound
+    if (forwardCells.length === 0 && !killedPawn && !move.isEntry) {
       if (toIndex === HOME_INDEX) playHomeSound();
       else playMoveSound();
       return;
@@ -260,7 +274,12 @@ export function OnlineGameProvider({ initialState, myPosition, children }: Onlin
 
     const forwardInterval = setInterval(() => {
       step++;
-      playMoveSound();
+      // Only play movement tap if it's NOT the very first cell of an entry (since playEntrySound already played)
+      const isFirstEntryStep = move.isEntry && step === 1;
+      if (!isFirstEntryStep) {
+        playMoveSound();
+      }
+
       if (step >= forwardCells.length) {
         clearInterval(forwardInterval);
         if (toIndex === HOME_INDEX) playHomeSound();
@@ -303,7 +322,18 @@ export function OnlineGameProvider({ initialState, myPosition, children }: Onlin
         });
       }
     }, FORWARD_STEP_MS);
-  }, [socket, gameState, isAnimating, finishAnimation]);
+  }, [gameState, finishAnimation]);
+
+  const selectMove = useCallback((move: MoveAction) => {
+    if (isAnimating || !socket) return;
+    const moveIndex = gameState.validMoves.findIndex(
+      (m) => m.pawnId === move.pawnId && m.targetPathIndex === move.targetPathIndex,
+    );
+    if (moveIndex === -1) return;
+
+    socket.emit('game:select-move', { moveIndex });
+    runMovementAnimation(move);
+  }, [socket, gameState, isAnimating, runMovementAnimation]);
 
   const isMyTurn = gameState.currentTurn === myPosition;
 
@@ -312,9 +342,11 @@ export function OnlineGameProvider({ initialState, myPosition, children }: Onlin
     socket.emit('game:roll-dice');
   }, [socket, isAnimating, isMyTurn]);
 
+  const [isRolling, setIsRolling] = useState(false);
+
   // Auto-move: single valid move
   useEffect(() => {
-    if (isAnimating) return;
+    if (isAnimating || isRolling) return;
     if (gameState.phase !== GamePhase.WAITING_FOR_MOVE) return;
     if (gameState.validMoves.length === 0) return;
     if (gameState.currentTurn !== myPosition) return;
@@ -332,7 +364,17 @@ export function OnlineGameProvider({ initialState, myPosition, children }: Onlin
       const t = setTimeout(() => selectMove(moves[0]), 3500);
       return () => clearTimeout(t);
     }
-  }, [gameState.phase, gameState.validMoves, isAnimating, selectMove, myPosition, gameState.currentTurn]);
+  }, [gameState.phase, gameState.validMoves, isAnimating, isRolling, selectMove, myPosition, gameState.currentTurn]);
+
+  // Perspective: rotate the board so myPosition is at the Bottom (180deg)
+  // Mapping: A:0, B:270, C:180, D:90 (Standard map: A=Top, B=Left, C=Bottom, D=Right)
+  const perspectiveRotation = useMemo(() => {
+    if (myPosition === 'A') return 180; // Flip A to bottom
+    if (myPosition === 'B') return 90;  // Rotate B from left to bottom
+    if (myPosition === 'C') return 0;   // C is already at bottom
+    if (myPosition === 'D') return 270; // Rotate D from right to bottom
+    return 0;
+  }, [myPosition]);
 
   const value = {
     state: gameState,
@@ -341,6 +383,9 @@ export function OnlineGameProvider({ initialState, myPosition, children }: Onlin
     animatingPawn,
     killedAnimatingPawn,
     isAnimating,
+    isRolling,
+    setIsRolling,
+    perspectiveRotation,
     timer,
     myPosition,
     isMyTurn,

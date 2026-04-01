@@ -241,8 +241,10 @@ async function handlePostAction(io: Server, roomCode: string): Promise<void> {
     }
   }
 
-  // Schedule next timer
-  scheduleTimers(io, roomCode);
+  // Schedule next timer (delayed to allow for client-side animations)
+  setTimeout(() => {
+    scheduleTimers(io, roomCode);
+  }, 1500);
 }
 
 function countActivePlayers(room: ReturnType<typeof RoomManager.getActiveRoom>): number {

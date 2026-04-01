@@ -17,11 +17,11 @@ const faqs: FAQItem[] = [
   },
   {
     q: 'How do I play online with friends?',
-    a: 'Tap "Play Online" on the home page. You can create a private room with a code and share it with friends, or join an existing room. No login or account needed — just share the 6-letter room code.',
+    a: 'Tap "Play Online" on the home page. You can create a private room with a code and share it with friends, or join an existing room. No login or account needed - just share the 6-letter room code.',
   },
   {
     q: 'Can I play offline?',
-    a: 'Yes! Use "Pass & Play" mode to play on the same device — just pass the phone between turns. If you install the app (via the Install button), it works completely offline with no internet needed.',
+    a: 'Yes! Use "Pass & Play" mode to play on the same device - just pass the phone between turns. If you install the app (via the Install button), it works completely offline with no internet needed.',
   },
   {
     q: 'How does the dice work?',
@@ -29,11 +29,11 @@ const faqs: FAQItem[] = [
   },
   {
     q: 'What is "Fair Dice" mode?',
-    a: 'Fair Dice applies very gentle probability adjustments (2-4%) to reduce frustrating bad-luck streaks. If you\'re stuck with no pawns on the board for many turns, it slightly increases your chance of rolling a 4 or 8. The adjustments are tiny and capped — you won\'t notice them, but they prevent extreme frustration. Choose "Random" mode for pure equal probability.',
+    a: 'Fair Dice applies very gentle probability adjustments (2-4%) to reduce frustrating bad-luck streaks. If you\'re stuck with no pawns on the board for many turns, it slightly increases your chance of rolling a 4 or 8. The adjustments are tiny and capped - you won\'t notice them, but they prevent extreme frustration. Choose "Random" mode for pure equal probability.',
   },
   {
     q: 'How do I capture (kill) opponent pawns?',
-    a: 'Land on a cell occupied by an opponent\'s pawn, and it gets sent back to their start. But be careful — pawns on safe cells (marked with an X) cannot be captured. Corner entry cells and the inner path are also safe zones.',
+    a: 'Land on a cell occupied by an opponent\'s pawn, and it gets sent back to their start. But be careful - pawns on safe cells (marked with an X) cannot be captured. Corner entry cells and the inner path are also safe zones.',
   },
   {
     q: 'What is the inner path?',
@@ -41,7 +41,7 @@ const faqs: FAQItem[] = [
   },
   {
     q: 'What happens if I disconnect during an online game?',
-    a: 'You get a grace period to reconnect. If you don\'t return within a few turns, your turns are automatically skipped. You can rejoin an in-progress game by entering the same room code — the game will recognize you and put you back in.',
+    a: 'You get a grace period to reconnect. If you don\'t return within a few turns, your turns are automatically skipped. You can rejoin an in-progress game by entering the same room code - the game will recognize you and put you back in.',
   },
   {
     q: 'Can I play in teams?',
@@ -53,7 +53,7 @@ const faqs: FAQItem[] = [
   },
   {
     q: 'Is there a time limit for turns?',
-    a: 'In online games, yes — you have 30 seconds to roll and 30 seconds to select a move. If time runs out, the game auto-plays for you. In Pass & Play mode, there\'s no time limit.',
+    a: 'In online games, yes - you have 20 seconds to roll and 60 seconds to select a move. If time runs out, the game auto-plays for you. In Pass & Play mode, there\'s no time limit.',
   },
   {
     q: 'Is this game free?',
@@ -106,9 +106,8 @@ export function FAQ({ onBack }: FAQProps) {
                     <span className="text-sm font-semibold text-stone-700 pr-4">{faq.q}</span>
                     <ChevronDown
                       size={18}
-                      className={`text-stone-400 shrink-0 transition-transform duration-300 ${
-                        isOpen ? 'rotate-180' : ''
-                      }`}
+                      className={`text-stone-400 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''
+                        }`}
                     />
                   </button>
                   {isOpen && (

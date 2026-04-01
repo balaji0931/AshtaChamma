@@ -102,7 +102,7 @@ function BanIcon({ color, size = 18 }: { color: string; size?: number }) {
 }
 
 export function Cell({ cellId, pawnsOnCell }: CellProps) {
-  const { state, selectMove, isAnimating, isMyTurn } = useGame();
+  const { state, selectMove, isAnimating, isRolling, isMyTurn, perspectiveRotation = 0 } = useGame();
   const { boardTheme } = useTheme();
   const isCssBoard = boardTheme === 'css';
 
@@ -120,13 +120,14 @@ export function Cell({ cellId, pawnsOnCell }: CellProps) {
     && isSafe
     && ENTRY_CELLS[currentTurn] === cellId
     && state.phase === 'WAITING_FOR_ROLL'
+    && !isRolling
     && state.players.get(currentTurn)?.pawns.some((p) => p.state === 'OUTSIDE');
 
   const [selectionMoves, setSelectionMoves] = useState<MoveAction[] | null>(null);
 
   // Build list of moves relevant to pawns on this cell
   const pawnIdsOnCell = new Set(pawnsOnCell.map(p => p.id));
-  const cellMoves = state.phase === 'WAITING_FOR_MOVE' && !isAnimating
+  const cellMoves = state.phase === 'WAITING_FOR_MOVE' && !isAnimating && !isRolling
     ? state.validMoves.filter(m => {
       // Direct match: move's pawnId is on this cell
       const directPawn = state.players.get(state.currentTurn)?.pawns.find(pw => pw.id === m.pawnId);
@@ -316,7 +317,10 @@ export function Cell({ cellId, pawnsOnCell }: CellProps) {
       )}
 
       {/* PAWNS RENDERING */}
-      <div className="relative z-10 flex flex-wrap items-center justify-center gap-0">
+      <div 
+        className="relative z-10 flex flex-wrap items-center justify-center gap-0"
+        style={{ transform: `rotate(${-perspectiveRotation}deg)` }}
+      >
         {(() => {
           // Group pawns by player for stacking
           const groups: Record<string, typeof pawnsOnCell> = {};

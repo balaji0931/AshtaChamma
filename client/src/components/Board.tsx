@@ -64,7 +64,7 @@ export function OutsidePawns({
   position: PlayerPosition;
   direction: 'row' | 'col';
 }) {
-  const { state, selectMove, isAnimating, isMyTurn } = useGame();
+  const { state, selectMove, isAnimating, isRolling, isMyTurn, perspectiveRotation = 0 } = useGame();
   const { pawnStyle } = useTheme();
   const player = state.players.get(position);
   if (!player) return null;
@@ -73,7 +73,7 @@ export function OutsidePawns({
   const isTurn = state.currentTurn === position;
   const imgSrc = PAWN_IMAGES[pawnStyle][position];
 
-  const entryMoves = !isAnimating && state.phase === 'WAITING_FOR_MOVE'
+  const entryMoves = !isAnimating && !isRolling && state.phase === 'WAITING_FOR_MOVE'
     ? state.validMoves.filter((m) => m.isEntry && player.pawns.some((p) => p.id === m.pawnId))
     : [];
 
@@ -96,7 +96,10 @@ export function OutsidePawns({
   };
 
   return (
-    <div className={`flex ${direction === 'col' ? 'flex-col' : ''} gap-1 items-center justify-center`}>
+    <div 
+      className={`flex ${direction === 'col' ? 'flex-col' : ''} gap-1 items-center justify-center`}
+      style={{ transform: `rotate(${-perspectiveRotation}deg)` }}
+    >
       <span
         className={`text-[10px] font-semibold text-stone-600 truncate max-w-[60px] ${isTurn ? 'text-stone-800' : 'opacity-50'}`}
         style={direction === 'col' ? { writingMode: 'vertical-rl', textOrientation: 'mixed' } : undefined}
@@ -160,7 +163,7 @@ export function OutsidePawns({
 }
 
 export function Board() {
-  const { state, animatingPawn, killedAnimatingPawn } = useGame();
+  const { state, perspectiveRotation = 0, animatingPawn, killedAnimatingPawn } = useGame();
   const { boardTheme } = useTheme();
 
   // Build pawn-to-cell map, with animating/killed pawns at their animated positions
@@ -218,7 +221,10 @@ export function Board() {
   const hasD = state.players.has(PlayerPosition.D);
 
   return (
-    <div className="relative w-full h-full">
+    <div 
+      className="relative w-full h-full transition-transform duration-700 ease-in-out"
+      style={{ transform: `rotate(${perspectiveRotation}deg)` }}
+    >
       <div className="hidden md:block">
         {hasA && (
           <div className="absolute left-1/2 -translate-x-1/2 -top-6 sm:-top-7">

@@ -66,6 +66,21 @@ const PLAYER_NAME_COLOR: Record<PlayerPosition, string> = {
   [PP.D]: 'text-blue-600',
 };
 
+/** Map visual slots (Top, Left, Bottom, Right) to player positions based on viewer position */
+function getPositionAtSlot(slot: 'top' | 'bottom' | 'left' | 'right', myPos: PlayerPosition): PlayerPosition {
+  const players: PlayerPosition[] = [PP.A, PP.D, PP.C, PP.B]; // Clockwise from Top
+  const myIdx = players.indexOf(myPos);
+  if (myIdx === -1) return myPos;
+
+  switch (slot) {
+    case 'bottom': return myPos;
+    case 'top': return players[(myIdx + 2) % 4];
+    case 'left': return players[(myIdx + 3) % 4];
+    case 'right': return players[(myIdx + 1) % 4];
+    default: return myPos;
+  }
+}
+
 /** Animated arrow between two players */
 function TurnArrow({ currentTurn, leftPlayer, rightPlayer, hasLeft, hasRight }: {
   currentTurn: PlayerPosition;
@@ -163,7 +178,7 @@ function PlayerDice({ position, diceOnLeft = false, isBottom = false, isMe = fal
         >
           {/* Rotating Entry Circular Indicator */}
           {i < outsidePawns.length && canEnter && isMe && isMyTurn && (
-            <div 
+            <div
               className="absolute inset-0 scale-150 animate-rotate-slow rounded-full border-2 border-dashed opacity-40 pointer-events-none"
               style={{ borderColor: ARROW_COLORS[position] }}
             />
@@ -226,7 +241,7 @@ function OnlineGameInner({ onExit }: { onExit: () => void }) {
                 const player = state.players.get(pos);
                 if (!player) return null;
                 const rank = idx + 1;
-                const medalColors = ['#fbbf24', '#94a3b8', '#fb923c', 'transparent'];
+                const medalColors = ['#fbbf24', '#94a3b8', '#fb923c', '#cbd5e1'];
                 const medalColor = medalColors[Math.min(idx, 3)];
                 const bgColors = [
                   'bg-gradient-to-r from-amber-100 to-amber-50 border-amber-300',
@@ -235,10 +250,11 @@ function OnlineGameInner({ onExit }: { onExit: () => void }) {
                   'bg-stone-50 border-stone-200',
                 ];
                 const rankLabels = ['1st', '2nd', '3rd', '4th'];
+                const pColor = playerColors[pos] || '#94a3b8';
                 return (
                   <div
-                    key={pos}
-                    className={`flex items-center gap-3 p-3 rounded-xl border ${bgColors[Math.min(idx, 3)]} transition-all`}
+                    key={`${pos}-${idx}`}
+                    className={`flex items-center gap-3 p-3 rounded-xl border ${bgColors[Math.min(idx, 3)] || 'bg-stone-50 border-stone-200'} transition-all`}
                     style={{ animationDelay: `${idx * 100}ms` }}
                   >
                     <div className="w-8 flex justify-center">
@@ -250,13 +266,13 @@ function OnlineGameInner({ onExit }: { onExit: () => void }) {
                     </div>
                     <div
                       className="w-5 h-5 rounded-full shrink-0 shadow-inner"
-                      style={{ backgroundColor: playerColors[pos] }}
+                      style={{ backgroundColor: pColor }}
                     />
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-stone-800 text-sm truncate">{player.name}</p>
                     </div>
                     <span className={`text-xs font-black uppercase tracking-wider ${rank === 1 ? 'text-amber-600' : 'text-stone-400'}`}>
-                      {rankLabels[Math.min(idx, 3)]}
+                      {rankLabels[Math.min(idx, 3)] || `${rank}th`}
                     </span>
                   </div>
                 );
@@ -300,8 +316,8 @@ function OnlineGameInner({ onExit }: { onExit: () => void }) {
       <div className="absolute top-2 left-3 z-10">
         <ConnectionStatus />
       </div>
-      <button 
-        className="absolute top-2 right-3 z-10 text-stone-300 hover:text-stone-500 active:scale-90 transition-all p-2" 
+      <button
+        className="absolute top-2 right-3 z-10 text-stone-300 hover:text-stone-500 active:scale-90 transition-all p-2"
         onClick={() => isGameOver ? onExit() : setShowLeaveConfirm(true)}
       >
         <X size={20} />
@@ -314,51 +330,71 @@ function OnlineGameInner({ onExit }: { onExit: () => void }) {
 
       {/* ============ MOBILE (< md) ============ */}
       <div className="flex flex-col w-full h-full md:hidden items-center justify-center gap-1 px-1 pt-10">
-        {/* Top players: A (left) — arrow — D (right) */}
-        <div className="flex items-center w-full px-1 shrink-0">
-          {hasA ? <PlayerDice position={PP.A} diceOnLeft isMe={myPosition === PP.A} /> : <div className="flex-1" />}
-          <TurnArrow currentTurn={state.currentTurn} leftPlayer={PP.A} rightPlayer={PP.D} hasLeft={hasA} hasRight={hasD} />
-          {hasD ? <PlayerDice position={PP.D} isMe={myPosition === PP.D} /> : <div className="flex-1" />}
-        </div>
+        {/* Top players: Opposite (left) — arrow — Right (right) */}
+        {(() => {
+          const oppositePos = getPositionAtSlot('top', myPosition);
+          const rightPos = getPositionAtSlot('right', myPosition);
+          const leftPos = getPositionAtSlot('left', myPosition);
+          const myPos = myPosition;
 
-        {/* Board */}
-        <div className="w-full aspect-square shrink-0 p-1">
-          <Board />
-        </div>
+          return (
+            <>
+              <div className="flex items-center w-full px-1 shrink-0">
+                {state.players.has(leftPos) ? <PlayerDice position={leftPos} diceOnLeft isMe={myPosition === leftPos} /> : <div className="flex-1" />}
+                <TurnArrow currentTurn={state.currentTurn} leftPlayer={leftPos} rightPlayer={oppositePos} hasLeft={state.players.has(leftPos)} hasRight={state.players.has(oppositePos)} />
+                {state.players.has(oppositePos) ? <PlayerDice position={oppositePos} isMe={myPosition === oppositePos} /> : <div className="flex-1" />}
+              </div>
 
-        {/* Bottom players: B (left) — arrow — C (right) */}
-        <div className="flex items-center w-full px-1 shrink-0">
-          {hasB ? <PlayerDice position={PP.B} diceOnLeft isBottom isMe={myPosition === PP.B} /> : <div className="flex-1" />}
-          <TurnArrow currentTurn={state.currentTurn} leftPlayer={PP.B} rightPlayer={PP.C} hasLeft={hasB} hasRight={hasC} />
-          {hasC ? <PlayerDice position={PP.C} isBottom isMe={myPosition === PP.C} /> : <div className="flex-1" />}
-        </div>
+              {/* Board */}
+              <div className="w-full aspect-square shrink-0 p-1">
+                <Board />
+              </div>
+
+              {/* Bottom players: Viewer (left) — arrow — Right (right) */}
+              <div className="flex items-center w-full px-1 shrink-0">
+                {state.players.has(myPos) ? <PlayerDice position={myPos} diceOnLeft isBottom isMe={true} /> : <div className="flex-1" />}
+                <TurnArrow currentTurn={state.currentTurn} leftPlayer={myPos} rightPlayer={rightPos} hasLeft={state.players.has(myPos)} hasRight={state.players.has(rightPos)} />
+                {state.players.has(rightPos) ? <PlayerDice position={rightPos} isBottom isMe={myPosition === rightPos} /> : <div className="flex-1" />}
+              </div>
+            </>
+          );
+        })()}
       </div>
 
       {/* ============ DESKTOP (>= md) ============ */}
       <div className="hidden md:flex items-center justify-center w-full h-full pt-10">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center shrink-0" style={{ minWidth: hasB ? undefined : 0 }}>
-            {hasB && <PlayerDice position={PP.B} diceOnLeft isMe={myPosition === PP.B} />}
-          </div>
+        {(() => {
+          const myPos = myPosition;
+          const leftPos = getPositionAtSlot('left', myPosition);
+          const oppositePos = getPositionAtSlot('top', myPosition);
+          const rightPos = getPositionAtSlot('right', myPosition);
 
-          <div className="flex flex-col items-center gap-2">
-            <div className="h-12 flex items-center justify-center">
-              {hasA && <PlayerDice position={PP.A} isMe={myPosition === PP.A} />}
-            </div>
-            <div className="p-8">
-              <div style={{ width: 'min(60vw, 60vh)', height: 'min(60vw, 60vh)' }}>
-                <Board />
+          return (
+            <div className="flex items-center gap-6">
+              <div className="flex items-center shrink-0" style={{ minWidth: state.players.has(leftPos) ? undefined : 0 }}>
+                {state.players.has(leftPos) && <PlayerDice position={leftPos} diceOnLeft isMe={myPosition === leftPos} />}
+              </div>
+
+              <div className="flex flex-col items-center gap-6">
+                <div className="h-12 flex items-center justify-center">
+                  {state.players.has(oppositePos) && <PlayerDice position={oppositePos} isMe={myPosition === oppositePos} />}
+                </div>
+                <div className="p-8">
+                  <div style={{ width: 'min(60vw, 60vh)', height: 'min(60vw, 60vh)' }}>
+                    <Board />
+                  </div>
+                </div>
+                <div className="h-12 flex items-center justify-center">
+                  {state.players.has(myPos) && <PlayerDice position={myPos} isMe={true} />}
+                </div>
+              </div>
+
+              <div className="flex items-center shrink-0" style={{ minWidth: state.players.has(rightPos) ? undefined : 0 }}>
+                {state.players.has(rightPos) && <PlayerDice position={rightPos} isMe={myPosition === rightPos} />}
               </div>
             </div>
-            <div className="h-12 flex items-center justify-center">
-              {hasC && <PlayerDice position={PP.C} isMe={myPosition === PP.C} />}
-            </div>
-          </div>
-
-          <div className="flex items-center shrink-0" style={{ minWidth: hasD ? undefined : 0 }}>
-            {hasD && <PlayerDice position={PP.D} isMe={myPosition === PP.D} />}
-          </div>
-        </div>
+          );
+        })()}
       </div>
     </div>
   );

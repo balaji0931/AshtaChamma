@@ -234,10 +234,10 @@ export function computeTargetIndex(
 
     if (targetIndex > HOME_INDEX) {
       if (config.innerPathMode === InnerPathMode.ROTATION) {
-        // Loop within inner cells (indices 16–23)
-        const overflow = targetIndex - HOME_INDEX;
-        const loopedIndex = INNER_START_INDEX + ((overflow - 1) % INNER_LOOP_LENGTH);
-        return loopedIndex;
+        // Continuous loop within inner cells (indices 16–23)
+        // Skip index 24 (Home) unless it's an exact roll
+        const newIndex = 16 + ((currentIndex - 16 + moveSteps) % INNER_LOOP_LENGTH);
+        return newIndex;
       }
       // No-rotation: invalid move (overshoots home)
       return -1;

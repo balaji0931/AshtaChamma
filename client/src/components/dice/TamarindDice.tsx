@@ -11,8 +11,8 @@ const SEED_SCRATCHED = '/assets/dice/seed_scratched.png';
 const SEED_DARK = '/assets/dice/seed_dark.png';
 
 export function TamarindDice({ position }: { position: PlayerPosition }) {
-  const { state, roll, isAnimating, isMyTurn } = useGame();
-  const [isRolling, setIsRolling] = useState(false);
+  const { state, roll, isAnimating, isMyTurn, setIsRolling } = useGame();
+  const [localIsRolling, setLocalIsRolling] = useState(false);
   const [seedAngles, setSeedAngles] = useState([0, 0, 0, 0]);
   const [seedYAngles, setSeedYAngles] = useState([0, 0, 0, 0]);
   const rollCountRef = useRef(0);
@@ -20,7 +20,7 @@ export function TamarindDice({ position }: { position: PlayerPosition }) {
   const pendingSeedsRef = useRef<boolean[] | null>(null);
 
   const isTurn = state.currentTurn === position;
-  const canRoll = isMyTurn && isTurn && state.phase === 'WAITING_FOR_ROLL' && !isRolling && !isAnimating;
+  const canRoll = isMyTurn && isTurn && state.phase === 'WAITING_FOR_ROLL' && !localIsRolling && !isAnimating;
 
   // ─── Sync Animation with State ───
   useEffect(() => {
@@ -31,7 +31,7 @@ export function TamarindDice({ position }: { position: PlayerPosition }) {
     if (lastRollIdRef.current === currentRollId) return;
     lastRollIdRef.current = currentRollId;
 
-    if (isRolling) {
+    if (localIsRolling) {
       // If we are already animating (as the roller), capture the new seeds
       // so the animation can snap to them when it finishes.
       pendingSeedsRef.current = result.seeds;
@@ -39,10 +39,11 @@ export function TamarindDice({ position }: { position: PlayerPosition }) {
       // Only trigger animation if we just transitioned to the Move phase (i.e. a roll just happened)
       animateLocally(result.seeds);
     }
-  }, [state.lastDiceResult, state.turnNumber, isRolling]);
+  }, [state.lastDiceResult, state.turnNumber, localIsRolling]);
 
   const animateLocally = (seeds: boolean[]) => {
     setIsRolling(true);
+    setLocalIsRolling(true);
     playRollSound();
 
     let frame = 0;
@@ -61,7 +62,8 @@ export function TamarindDice({ position }: { position: PlayerPosition }) {
         clearInterval(interval);
         setSeedAngles(seeds.map((isWhite) => (isWhite ? 0 : 180)));
         setSeedYAngles([0, 0, 0, 0]);
-        setIsRolling(false);
+        setLocalIsRolling(false);
+        setTimeout(() => setIsRolling(false), 200); // Small buffer
       }
     }, 90);
   };
@@ -74,6 +76,7 @@ export function TamarindDice({ position }: { position: PlayerPosition }) {
 
     // 2. Start local animation
     setIsRolling(true);
+    setLocalIsRolling(true);
     playRollSound();
 
     // 3. Emit roll immediately (Online) or calculate (Local)
@@ -106,17 +109,17 @@ export function TamarindDice({ position }: { position: PlayerPosition }) {
           if (finalSeeds) {
             setSeedAngles(finalSeeds.map((isWhite) => (isWhite ? 0 : 180)));
             setSeedYAngles([0, 0, 0, 0]);
-            setIsRolling(false);
+            setLocalIsRolling(false);
+            setTimeout(() => setIsRolling(false), 200); // Small buffer
           } else {
             // Fallback: if result hasn't arrived at all, keep shaking or wait
-            // For now, we'll just stop and it might look "dangled" until the update arrives.
-            // But with 1.4s animation, the server response is almost always back.
+            setLocalIsRolling(false);
             setIsRolling(false);
           }
         }
       }
     }, 90);
-  }, [canRoll, roll, state.lastDiceResult]);
+  }, [canRoll, roll, state.lastDiceResult, setIsRolling]);
 
   return (
     <div
@@ -139,7 +142,7 @@ export function TamarindDice({ position }: { position: PlayerPosition }) {
             height: '18px',
             transformStyle: 'preserve-3d',
             transform: `rotateX(${seedAngles[i]}deg) rotateY(${seedYAngles[i]}deg)`,
-            transition: isRolling
+            transition: localIsRolling
               ? 'transform 0.06s linear'
               : 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
           }}

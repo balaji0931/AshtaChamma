@@ -1,10 +1,10 @@
-import { 
-  Target, 
-  Map as MapIcon, 
-  Circle, 
-  DoorOpen, 
-  Swords, 
-  Home as HomeIcon, 
+import {
+  Target,
+  Map as MapIcon,
+  Circle,
+  DoorOpen,
+  Swords,
+  Home as HomeIcon,
   Dice5,
   RefreshCw,
   Trophy,
@@ -82,7 +82,7 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
           <Section icon={<Dice5 size={18} className="text-amber-500" />} title="Rolling the Dice">
             <p>
               Ashta Chamma uses <strong>4 cowrie shells</strong> (or tamarind seeds)
-              instead of numbered dice. You throw all 4 at once — the number of shells
+              instead of numbered dice. You throw all 4 at once - the number of shells
               landing face-up determines your roll:
             </p>
             <div className="mt-3 space-y-1.5">
@@ -94,7 +94,7 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
             </div>
             <Highlight>
               Rolling <strong>4 or 8</strong> gives you an <strong>extra turn</strong>!
-              You can chain multiple extra turns — up to 3 consecutive bonus turns.
+              You can chain multiple extra turns - up to 3 consecutive bonus turns.
             </Highlight>
           </Section>
 
@@ -106,7 +106,7 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
               your corner's entry cell (a safe cell).
             </p>
             <Highlight>
-              Rolling <strong>8</strong> is special — it enters <strong>2 pawns</strong>
+              Rolling <strong>8</strong> is special - it enters <strong>2 pawns</strong>
               at once (if you have 2+ pawns outside)! This is called <strong>Double Entry</strong>.
             </Highlight>
             <p className="mt-2 text-stone-500 text-[11px]">
@@ -122,14 +122,14 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
               <strong> outer track</strong> (the perimeter of the 5×5 grid) in order.
             </p>
             <NumberedList items={[
-              'Roll the dice — your roll value is how many cells the pawn moves',
+              'Roll the dice - your roll value is how many cells the pawn moves',
               'Tap the pawn you want to move (highlighted pawns have valid moves)',
               'If only one pawn can move, it moves automatically',
-              'If no valid moves exist, your turn is skipped after a short delay',
+              'If no valid moves exist, your turn is skipped automatically',
             ]} />
             <p className="mt-3">
               After completing a full loop of the outer track (16 cells), the pawn
-              enters the <strong>inner spiral</strong> — heading toward HOME at the center.
+              enters the <strong>inner spiral</strong> - heading toward HOME at the center.
             </p>
           </Section>
 
@@ -137,18 +137,17 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
           <Section icon={<Swords size={18} className="text-amber-500" />} title="Killing Opponents">
             <p>
               If your pawn lands on a cell with an <strong>opponent's pawn</strong>,
-              that pawn is <strong>killed</strong> — sent back outside the board. They'll
+              that pawn is <strong>killed</strong> - sent back outside the board. They'll
               need to roll 4 or 8 again to re-enter.
             </p>
             <Highlight>
               <strong>Killing gives you an extra turn!</strong> This stacks with the 4/8
-              extra turn — so a kill on a 4 or 8 still only counts as one extra turn.
+              extra turn - so a kill on a 4 or 8 still only counts as one extra turn.
             </Highlight>
             <div className="mt-3 space-y-1.5">
               <RuleRow icon={<Check size={14} className="text-emerald-500" />} text="You CAN kill on normal (non-safe) cells" />
               <RuleRow icon={<Lock size={14} className="text-rose-500" />} text="You CANNOT kill on safe cells (★)" />
               <RuleRow icon={<Lock size={14} className="text-rose-500" />} text="You CANNOT kill teammates (in team mode)" />
-              <RuleRow icon={<Lock size={14} className="text-rose-500" />} text="You CANNOT kill pawns on the inner path" />
             </div>
           </Section>
 
@@ -156,12 +155,12 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
           <Section icon={<HomeIcon size={18} className="text-amber-500" />} title="Inner Path & HOME">
             <p>
               After a pawn completes the outer loop (16 cells), it enters the
-              <strong> inner spiral</strong> — an 8-cell path winding toward the center.
+              <strong> inner spiral</strong> - an 8-cell path winding toward the center.
               Pawns on the inner path are <strong>safe from kills</strong>.
             </p>
             <p className="mt-2">
               The final cell is <strong>HOME</strong> (the center of the board). To get
-              there, your pawn must land exactly on it — or bounce back, depending on
+              there, your pawn must land exactly on it - or bounce back, depending on
               the Overshoot Rule setting.
             </p>
             <Highlight>
@@ -172,7 +171,7 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
           </Section>
 
           {/* Paired Mode */}
-          <Section icon={<div className="flex gap-0.5"><Circle size={12} fill="currentColor"/><Circle size={12} fill="currentColor"/></div>} title="Paired Mode (Optional)">
+          <Section icon={<div className="flex gap-0.5"><Circle size={12} fill="currentColor" /><Circle size={12} fill="currentColor" /></div>} title="Paired Mode (Optional)">
             <p>
               In <strong>Paired</strong> game mode, two of your own pawns on the same
               <strong> non-safe cell</strong> automatically form a <strong>pair</strong>.
@@ -180,7 +179,7 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
             <div className="mt-2 space-y-1.5">
               <RuleRow icon={<Check size={14} className="text-emerald-500" />} text="Pairs move together as one unit" />
               <RuleRow icon={<Check size={14} className="text-emerald-500" />} text="Pairs can only move on even dice (2, 4, 8) at half speed" />
-              <RuleRow icon={<Check size={14} className="text-emerald-500" />} text="Pairs block opponents — can't be passed unless opponent rolls 4 or 8" />
+              <RuleRow icon={<Check size={14} className="text-emerald-500" />} text="Pairs block opponents - can't be passed unless opponent rolls 4 or 8" />
               <RuleRow icon={<Lock size={14} className="text-amber-500" />} text="Pairs dissolve on safe cells (can't pair on safe cells)" />
             </div>
           </Section>
@@ -230,12 +229,12 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
           {/* Tips */}
           <Section icon={<Lightbulb size={18} className="text-amber-500" />} title="Pro Tips">
             <NumberedList items={[
-              'Kill early — it unlocks the inner path and sends opponents back to start',
-              'Park on safe cells when opponents are nearby — you\'re immune there',
-              'Rolling 4 or 8 gives extra turns — use chains to rush pawns forward',
-              'Spread your pawns instead of stacking — more move options each turn',
+              'Kill early - it unlocks the inner path and sends opponents back to start',
+              'Park on safe cells when opponents are nearby - you\'re immune there',
+              'Rolling 4 or 8 gives extra turns - use chains to rush pawns forward',
+              'Spread your pawns instead of stacking - more move options each turn',
               'In teams, coordinate with your partner\'s pawn positions',
-              'An 8 can enter 2 pawns at once — powerful for a quick start',
+              'An 8 can enter 2 pawns at once - powerful for a quick start',
             ]} />
           </Section>
 

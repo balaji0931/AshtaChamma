@@ -24,6 +24,10 @@ export interface UnifiedGameContextValue {
   animatingPawn: AnimatingPawn | null;
   killedAnimatingPawn: AnimatingPawn | null;
   isAnimating: boolean;
+  isRolling: boolean;
+  setIsRolling: (isRolling: boolean) => void;
+  /** Fixed rotation (0, 90, 180, 270) for this player's perspective */
+  perspectiveRotation?: number;
   /** The position of the local player (online mode) */
   myPosition?: PlayerPosition;
   /** Whether it is currently the local player's turn to act */
