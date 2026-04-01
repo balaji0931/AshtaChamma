@@ -2,7 +2,7 @@
 // Online Menu — Create Room / Join Room
 // ============================================================================
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, type ChangeEvent, type ReactNode } from 'react';
 import {
   type GameConfig,
   type RoomInfo,
@@ -244,7 +244,7 @@ export function OnlineMenu({ onRoomJoined, onGameRejoined, onBack, initialRoomCo
 
   // Pill component (reused from Home)
   const Pill = ({ options, value, onChange }: {
-    options: { label: string; value: string; icon?: React.ReactNode }[];
+    options: { label: string; value: string; icon?: ReactNode }[];
     value: string;
     onChange: (v: string) => void;
   }) => (
@@ -293,7 +293,7 @@ export function OnlineMenu({ onRoomJoined, onGameRejoined, onBack, initialRoomCo
             <input
               className="w-full px-4 py-3 bg-white/70 border border-stone-200/50 rounded-xl text-sm font-medium text-stone-700 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
               placeholder="Enter your name"
               maxLength={30}
             />
@@ -539,7 +539,7 @@ export function OnlineMenu({ onRoomJoined, onGameRejoined, onBack, initialRoomCo
                 <input
                   className="w-full px-4 py-3 bg-white/70 border border-stone-200/50 rounded-xl text-sm font-medium text-stone-700 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
                   value={roomPasscode}
-                  onChange={(e) => setRoomPasscode(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setRoomPasscode(e.target.value)}
                   placeholder="Room passcode"
                   maxLength={20}
                 />
@@ -573,7 +573,7 @@ export function OnlineMenu({ onRoomJoined, onGameRejoined, onBack, initialRoomCo
                 <input
                   className="w-full px-4 py-3 bg-white/70 border border-stone-200/50 rounded-xl text-lg font-black text-center text-stone-700 uppercase tracking-[0.3em] outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
                   value={roomCode}
-                  onChange={(e) => setRoomCode(e.target.value.toUpperCase().slice(0, 6))}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setRoomCode(e.target.value.toUpperCase().slice(0, 6))}
                   placeholder="ABC123"
                   maxLength={6}
                 />
@@ -612,7 +612,7 @@ export function OnlineMenu({ onRoomJoined, onGameRejoined, onBack, initialRoomCo
               <input
                 className="w-full px-4 py-3 bg-white/70 border border-stone-200/50 rounded-xl text-sm font-medium text-center text-stone-700 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
                 value={passcode}
-                onChange={(e) => setPasscode(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setPasscode(e.target.value)}
                 placeholder="Enter room passcode"
                 maxLength={20}
                 type="password"
