@@ -14,18 +14,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "lucide-react": "^1.7.0",
-    "pg": "^8.16.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.3"
-  },
-  "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
@@ -36,12 +24,24 @@
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^8.5.3",
-    "concurrently": "^9.1.2",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "lucide-react": "^1.7.0",
+    "pg": "^8.16.0",
     "postcss": "^8.5.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.19.4",
     "typescript": "^6.0.2",
     "vite": "^6.3.5"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }
