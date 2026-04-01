@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-player-a: #e74c3c;
+  --color-player-b: #2ecc71;
+  --color-player-c: #f1c40f;
+  --color-player-d: #3498db;
+
+  --color-board: #f5e6c8;
+  --color-cell: #faf0dc;
+  --color-cell-border: #c9a96e;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #faf7f2;
+  color: #2d2a26;
+}
+
+@keyframes pawn-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes pulse-target {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.3); }
+  50% { box-shadow: 0 0 8px 3px rgba(46, 204, 113, 0.4); }
+}
+
+@keyframes win-appear {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounce-right {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+
+@keyframes arrow-bounce {
+  0%, 100% { transform: translateX(0); opacity: 0.7; }
+  50% { transform: translateX(-4px); opacity: 1; }
+}
+
+@keyframes entry-blink {
+  0%, 100% { box-shadow: inset 0 0 0 2px currentColor; opacity: 0.6; }
+  50% { box-shadow: inset 0 0 8px 2px currentColor; opacity: 1; }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-rotate-slow {
+  animation: rotate-slow 5s linear infinite;
+}
+
+.animate-rotate-fast {
+  animation: rotate-slow 2s linear infinite;
+}
+
+.animate-spin-fast {
+  animation: rotate-slow 2s linear infinite;
+}
+
+/* --- Setup Wizard Animations --- */
+.step-enter {
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.step-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.nav-gradient {
+  background: linear-gradient(to right, #f59e0b, #d97706);
+}
+
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+  70% { box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s infinite;
+}
