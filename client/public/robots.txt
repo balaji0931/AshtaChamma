@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Allow: /about
+Allow: /faq
+Allow: /sitemap.xml
 
 Sitemap: https://ashtachamma.tech/sitemap.xml
