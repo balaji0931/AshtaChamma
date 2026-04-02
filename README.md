@@ -66,7 +66,7 @@ This project recreates the ancient experience in a modern digital format, allowi
 
 1. **Clone the repo**
    ```bash
-   git clone https://github.com/balaljinayakbardawal/AshtaChamma.git
+   git clone https://github.com/balalji0931/AshtaChamma.git
    ```
 
 2. **Install dependencies**
