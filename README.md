@@ -73,8 +73,6 @@ This project recreates the ancient experience in a modern digital format, allowi
    ```bash
    cd AshtaChamma
    npm install
-   cd client
-   npm install
    ```
 
 3. **Environment Setup**
@@ -85,7 +83,6 @@ This project recreates the ancient experience in a modern digital format, allowi
      ```bash
      npm run dev  # (or equivalent start script)
      ```
-   - Separately, you can start the server: `npm run server` and client: `npm run client`.
 
 ---
 
