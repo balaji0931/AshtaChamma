@@ -5,7 +5,7 @@ A real-time multiplayer implementation of the traditional Indian board game **As
 ---
 
 ## 🚀 Live Demo
-*Play here: [ashtachamma.online](https://ashtachamma.online)* (Optional: Placeholder link)
+*Play here: [ashtachamma.tech](https://ashtachamma.tech)*
 
 ---
 
